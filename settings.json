@@ -1,0 +1,13 @@
+{
+    "colorize.languages": [
+        "css",
+        "sass",
+        "scss",
+        "less",
+        "typescript",
+        "javascript",
+        "javascriptreact",
+        "typescriptreact"
+    ],
+    "colorize.enable": true
+}
