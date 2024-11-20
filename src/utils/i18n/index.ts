@@ -9,6 +9,11 @@ const resources = {
   zh,
 };
 
+export enum Language {
+  EN_US = 'en',
+  ZH_CN = 'zh',
+}
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)

@@ -15,7 +15,7 @@ import themeStore from './utils/theme/theme';
         <div className="App"
         >
         <PageHeader /> 
-        
+        <ViewBlog />
       </div>
     </ThemeProvider>
     </I18nextProvider>

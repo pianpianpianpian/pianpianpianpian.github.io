@@ -1,6 +1,7 @@
 export default {
     translation: {
-      QinFeng: '冯 沁',
+      qinFeng: '冯沁',
+      publishedIn: '发布于',
       welcome: '欢迎',
       hello: '你好，{{name}}！',
       nav: {

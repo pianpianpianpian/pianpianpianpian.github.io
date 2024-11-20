@@ -1,32 +1,24 @@
-import { Box, Avatar, Button, Typography, FormControl, FormLabel, RadioGroup, useColorScheme, FormControlLabel, Radio } from '@mui/material';
 import { useTranslation } from 'react-i18next';
+import { observer } from 'mobx-react-lite';
+import themeStore from '../../utils/theme/theme';
+import AvatorBar from '../../components/AvatorBar';
+import Blog from '../../pages/Blog';
+import { Box, Container } from '@mui/material';
 
 function ViewBlog() {
     const { t, i18n } = useTranslation();
-  
     return (
-        <>
-        
-
-        <Box display='flex' alignItems='center'  width={200} height={75}>
-            <Avatar alt="QinFeng" src='./images/avatar.jpg' sx={{ 
-                width: 60, 
-                height: 60,
-                boxShadow: '4px 4px 4px 4px rgba(0, 0, 0, 0.3)',
-                marginRight: 2,
-            }} />
-            <Box>
-                <Typography fontSize={25} fontWeight={600} fontFamily='Poppins'>
-                    {t('QinFeng')}
-                </Typography>
-                <Typography fontSize={15} fontWeight={400} color='#C3C4C6' fontFamily='Poppins'>
-                    {t('welcome')}
-                </Typography>
-            </Box>
+        <Box sx={{
+            padding: '20rem', 
+            paddingTop: 3,
+            backgroundColor: themeStore.theme.palette.background.default,
+        }}>
+            <Container maxWidth="xl">
+                <AvatorBar />
+                <Blog />
+            </Container>
         </Box>
-     
-        </>
     );
 }
 
-export default ViewBlog;
+export default observer(ViewBlog);
