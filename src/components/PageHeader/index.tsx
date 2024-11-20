@@ -5,6 +5,8 @@ import { useCallback } from "react";
 import i18n from '../../utils/i18n';
 import { I18nextProvider } from 'react-i18next';
 import ViewBlog from "../../pages/ViewBlog";
+import {BedtimeOutlined, LightModeOutlined} from '@mui/icons-material';
+
 // 在 React 组件中使用
 function PageHeader() {
   return (
@@ -13,6 +15,19 @@ function PageHeader() {
         <button onClick={() => themeStore.toggleMode()}>
         切换主题
       </button>
+      <IconButton>
+      <BedtimeOutlined>
+
+      </BedtimeOutlined>
+      </IconButton>
+      
+      <LightModeOutlined>
+
+      </LightModeOutlined>
+
+      {/* <PublicOutlined>
+
+      </PublicOutlined> */}
 
       <IconButton onClick={() => i18n.changeLanguage('zh')} sx={{color: themeStore.theme.palette.text.primary}}>
         <SvgIcon>
@@ -23,6 +38,13 @@ function PageHeader() {
 
         {/* <Language /> */}    
       </IconButton>
+      <IconButton onClick={() => i18n.changeLanguage('en')} sx={{color: themeStore.theme.palette.text.primary}}>
+        <SvgIcon>
+      <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="size-6">
+  <path strokeLinecap="round" strokeLinejoin="round" d="M21.752 15.002A9.72 9.72 0 0 1 18 15.75c-5.385 0-9.75-4.365-9.75-9.75 0-1.33.266-2.597.748-3.752A9.753 9.753 0 0 0 3 11.25C3 16.635 7.365 21 12.75 21a9.753 9.753 0 0 0 9.002-5.998Z" />
+</svg>
+</SvgIcon>
+</IconButton>
       
         {/* <Button onClick={() => i18n.changeLanguage('en')} color={themeStore.theme.palette.primary}>EN</Button>
         <Button onClick={() => i18n.changeLanguage('zh')} color={themeStore.theme.palette.primary}>CN</Button> */}
