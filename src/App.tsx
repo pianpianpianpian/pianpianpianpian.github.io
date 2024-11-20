@@ -13,11 +13,9 @@ import themeStore from './utils/theme/theme';
     <I18nextProvider i18n={i18n}>
     <ThemeProvider theme={themeStore.theme}>
         <div className="App"
-        
         >
-        <PageHeader />
+        <PageHeader /> 
         
-        <ViewBlog />
       </div>
     </ThemeProvider>
     </I18nextProvider>

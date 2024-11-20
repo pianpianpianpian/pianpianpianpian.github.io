@@ -1,7 +1,16 @@
 import { ThemeOptions } from "@mui/material";
 import { action, computed, makeObservable, observable} from "mobx";
-import { createTheme } from "@mui/material/styles";
+import { createTheme, Palette } from "@mui/material/styles";
 import { DARK_PALETTE, LIGHT_PALETTE } from "./palette";
+
+import { PaletteOptions } from "@mui/material/styles";
+
+type QinColorItem = typeof LIGHT_PALETTE | typeof DARK_PALETTE;
+export interface QinColorPalette extends Omit<Palette, 'getContrastText' | 'augmentColor'> {
+  vesoft: QinColorItem;
+}
+
+
 
 
 export class ThemeStore {

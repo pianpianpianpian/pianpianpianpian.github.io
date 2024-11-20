@@ -3,9 +3,9 @@ export const LIGHT_PALETTE = {
         main: '#fff',
     },
     background: {
-        paper: '#fff',
-        default: '#fff',
-        secondary: '#fff',
-        secondaryBar: '#F4F4F5',
-      },
+       default: '#fff',
+    },
+    text: {
+        primary: '#000',
+    },
 };
