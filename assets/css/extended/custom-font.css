@@ -4,17 +4,26 @@
     }
 }
 
-@media screen and (min-width: 36em) {
+@media screen and (min-width: 110em) {
     body {
         font-size: 16px;
     }
 }
 
 .post-content h1{
-    font-size: 1.8em;
+    font-size: 2em;
 }
 .post-content h2{
-    font-size: 1.5em;
+    font-size: 1.8em;
+}
+.first-entry{
+    min-height: 0;
+    margin: 0;
+    padding: 20px 5px;
+}
+
+.lang-switch{
+    font-size: 11px;
 }
 
 

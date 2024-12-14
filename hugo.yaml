@@ -1,4 +1,31 @@
-baseURL: https://example.org/
-languageCode: en-us
-title: qin's Log
+baseURL: http://localhost:1313/
+defaultContentLanguage: zh
+title: twig'log
 theme: ["PaperMod"]
+menu:
+  main:
+    - name: Search
+      url: search/
+      weight: 10
+    - name: Tags
+      url: tags/
+      weight: 10
+    - name: About
+      url: about/
+      weight: 100
+    # - name: WiKi
+    #   url: https://github.com/adityatelange/hugo-PaperMod/wiki/
+outputs:
+  home:
+    - HTML
+    - RSS
+    - JSON
+params:
+  assets:
+    favicon: "favicon.png"
+    disableHLJS: true
+  homeInfoParams:
+    Title: "👋 Welcome to twig'log"
+    Content: >
+      Hi, this is Feng Qin, a front-end engineer. I'm documenting my learning notes in this blog.
+

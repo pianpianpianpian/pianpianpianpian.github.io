@@ -5,6 +5,7 @@ title: '新 Mac 安装配置'
 author: 'qinqinfeng'
 ShowToc: true
 ShowReadingTime: true
+tags: ['mac', 'zsh', 'iterm2', 'vscode', 'betterdisplay']
 ---
 
 
