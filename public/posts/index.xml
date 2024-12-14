@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom" xmlns:content="http://purl.org/rss/1.0/modules/content/">
+  <channel>
+    <title>Posts on qin&#39;s Log</title>
+    <link>http://localhost:1313/posts/</link>
+    <description>Recent content in Posts on qin&#39;s Log</description>
+    <generator>Hugo -- 0.139.4</generator>
+    <language>en-us</language>
+    <lastBuildDate>Sat, 14 Dec 2024 14:32:12 +0800</lastBuildDate>
+    <atom:link href="http://localhost:1313/posts/index.xml" rel="self" type="application/rss+xml" />
+    <item>
+      <title>React 整体架构</title>
+      <link>http://localhost:1313/posts/react/</link>
+      <pubDate>Sat, 14 Dec 2024 14:32:12 +0800</pubDate>
+      <guid>http://localhost:1313/posts/react/</guid>
+      <description>&lt;p&gt;Stack 架构在进行虚拟 DOM 树比较的时候，采用的是递归，计算会消耗大量的时间，新的 Fiber 架构采用的是链表，可以实现时间切片，防止 JS 的计算占用过多的时间从而导致浏览器出现丢帧的现象。&lt;/p&gt;
+&lt;p&gt;React v15 以及之前的架构称之为 Stack 架构，从 v16 开始，React 重构了整体的架构，新的架构被称之为 Fiber 架构，新的架构相比旧架构有一个最大的特点就是能够实现时间切片。&lt;/p&gt;
+&lt;h2 id=&#34;旧架构的问题&#34;&gt;旧架构的问题&lt;/h2&gt;
+&lt;p&gt;有哪些情况会导致我们的 Web 应用无法快速响应？&lt;/p&gt;
+&lt;p&gt;总结起来，实际上有两大类场景会限制快速响应：&lt;/p&gt;
+&lt;ol&gt;
+&lt;li&gt;当你需要执行大量计算或者设备本身的性能不足的时候，页面就会出现掉帧、卡顿的现象，这个本质上是来自于 CPU 的瓶颈。&lt;/li&gt;
+&lt;li&gt;进行 I/O 的时候，需要等待数据返回后再进行后续操作，等待的过程中无法快速响应，这种情况实际上是来自于 I/O 的瓶颈。&lt;/li&gt;
+&lt;/ol&gt;</description>
+    </item>
+    <item>
+      <title>新 Mac 安装配置</title>
+      <link>http://localhost:1313/posts/getstarted/</link>
+      <pubDate>Sat, 14 Dec 2024 14:32:12 +0800</pubDate>
+      <guid>http://localhost:1313/posts/getstarted/</guid>
+      <description>&lt;h2 id=&#34;安装-oh-my-zsh&#34;&gt;安装 oh-my-zsh&lt;/h2&gt;
+&lt;p&gt;oh-my-zsh 提供了 zsh 的一系列主题及插件管理，使 zsh 能成为更好用的 shell&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;sh -c &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;可以参考 oh-my-zsh 官网 &lt;a href=&#34;https://ohmyz.sh&#34;&gt;https://ohmyz.sh&lt;/a&gt; ，对 oh-my-zsh 主题及插件进行配置oh-my-zsh&lt;/p&gt;
+&lt;p&gt;例如，git 简写和 autocomplete 自动补全代码：&lt;/p&gt;
+&lt;p&gt;&lt;img alt=&#34;image.png&#34; loading=&#34;lazy&#34; src=&#34;https://p0-xtjj-private.juejin.cn/tos-cn-i-73owjymdk6/4cd8b80c7a714e3896baa62d3938328f~tplv-73owjymdk6-jj-mark-v1:0:0:0:0:5o6Y6YeR5oqA5pyv56S-5Yy6IEAg5b6I5YaF5ZCR5Z2Q6L2m6YO95Z2Q6L2m6aG25LiK:q75.awebp?policy=eyJ2bSI6MywidWlkIjoiNTU0MjIyMzc1NDQwNzIifQ%3D%3D&amp;rk3s=f64ab15b&amp;x-orig-authkey=f32326d3454f2ac7e96d3d06cdbb035152127018&amp;x-orig-expires=1734763842&amp;x-orig-sign=Ld%2FYBzRuSZkwpbRipQX4O0ZmTek%3D&#34;&gt;&lt;/p&gt;
+&lt;h2 id=&#34;安装-homebrew&#34;&gt;安装 Homebrew&lt;/h2&gt;
+&lt;p&gt;Homebrew 可以理解为 macOS 上的第三方应用商店，很多软件都可以通过 Homebrew 一条命令安装&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;/bin/bash -c &amp;quot;$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)&amp;quot;
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;然后在 &lt;code&gt;~/.zshrc&lt;/code&gt; 的最后加入&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;echo &#39;eval &amp;quot;$(/opt/homebrew/bin/brew shellenv)&amp;quot;&#39; &amp;gt;&amp;gt; ~/.zshrc
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;执行&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;source ~/.zshrc
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;即可生效使用 &lt;code&gt;brew&lt;/code&gt; 命令&lt;/p&gt;
+&lt;p&gt;常用软件均可使用 &lt;code&gt;brew&lt;/code&gt; 进行安装，例如 Chrome、Visual Studio Code 等&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;brew install --cask visual-studio-code google-chrome
+&lt;/code&gt;&lt;/pre&gt;
+&lt;p&gt;使用&lt;/p&gt;</description>
+    </item>
+  </channel>
+</rss>
