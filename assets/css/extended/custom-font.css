@@ -9,12 +9,20 @@
         font-size: 16px;
     }
 }
+:root {
+    --content-gap: 0.9em
+}
 
 .post-content h1{
     font-size: 2em;
+    margin: 2rem auto 1rem;
 }
 .post-content h2{
-    font-size: 1.8em;
+    font-size: 1.7em;
+    margin: 1.7rem auto 1.14rem;
+}
+.post-content h3{
+    font-size: 1.3em;
 }
 .first-entry{
     min-height: 0;
@@ -24,6 +32,27 @@
 
 .lang-switch{
     font-size: 11px;
+}
+
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        --theme: #1d1e20;
+        --entry: #2e2e33;
+        --primary: rgba(255, 255, 255, 0.84);
+        --secondary: rgba(255, 255, 255, 0.56);
+        --tertiary: rgba(255, 255, 255, 0.16);
+        --content: rgba(255, 255, 255, 0.74);
+        --hljs-bg: #2e2e33;
+        --code-bg: #37383e;
+        --border: #333;
+    }
+    .list {
+        background: var(--theme);
+    }
+    a{
+        color: #81D8D0;
+    }
 }
 
 
