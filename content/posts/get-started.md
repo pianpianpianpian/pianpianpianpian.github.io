@@ -6,7 +6,8 @@ author: 'qinqinfeng'
 ShowToc: true
 ShowReadingTime: true
 tags: ['mac', 'zsh', 'vscode']
-
+TocOpen: true
+summary: '好用的命令行工具和 VSCode 插件 🌷'
 ---
 
 # 命令行工具

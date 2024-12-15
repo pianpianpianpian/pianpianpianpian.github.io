@@ -6,9 +6,9 @@ author: 'qinqinfeng'
 ShowToc: true
 ShowReadingTime: true
 tags: ['react', 'fiber', 'stack', 'virtual dom','hooks']
-# description: '本文介绍了 React 的整体架构，包括旧架构和新的 Fiber 架构，以及它们在性能上的差异。'
+TocOpen: true
+summary: '现代前端框架的关键技术，React 的重大更新。关键词：虚拟 DOM、Fiber 架构、Hooks。'
 ---
-本文将先简要介绍现代前端框架，然再对 React 的架构演进和关键技术进行详细论述。包括：虚拟 DOM、Fiber 架构、Hooks 等。
 
 # 现代前端框架概述
 在早期使用 jQuery 时代，开发人员需要手动的去操作 DOM 节点，那个时候流行的还是 MPA 的模式，各个页面的 JS 代码量还在能够接受的范围。但是随着单页应用的流行，客户端的 JS 代码量出现井喷，此时如果还是采用传统的手动操作 DOM 的方式，对于开发人员来讲有非常大的心智负担。此时就出现了能够基于状态声明式渲染以及提供组件化开发模式的库，例如 Vue 和 React。这两者本质上仅仅是构建 UI 的库，但是随着应用的复杂度的提升，还需要前端路由方案、状态管理方案，所以有了 vue-router、react-router、vuex、redux 等周边生态产品。
