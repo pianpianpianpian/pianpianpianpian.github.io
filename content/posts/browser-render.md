@@ -5,12 +5,11 @@ title: '从输入 URL 到页面展示'
 author: 'qinqinfeng'
 ShowToc: true
 ShowReadingTime: true
-tags: [‘tcp', 'aes', 'rsa', 'tls', 'browser']
+tags: ['tcp', 'tls', 'http', 'browser']
 aliases: ["migrate-from-jekyl"]
 TocOpen: true
-summary: '介绍了从输入 URL 到页面展示中涉及的一些关键技术，包括 TCP 连接建立、TLS 连接建立、渲染流水线等。'
+summary: 'TCP 连接建立、TLS 连接建立、跨域与缓存、渲染流水线。'
 ---
-
 
 # TCP 连接建立
 TCP 协议在 IP 协议之上，应用层之下。如何选用不同网络，是 IP 层及数据链路层决定的；如何构造消息响应，是应用层决定的。如何保证消息的可靠传输，是 TCP 协议决定的。TCP 协议的特性如下：
@@ -225,7 +224,293 @@ DH 算法也有中间人伪造攻击的可能：
 
 
 
+# HTTP 协议
+## 同源策略
+限制了从同一个源加载的文档或脚本如何与另一个源的资源进行交互。安全性与可用性需要一个平衡点。
 
+可用性：HTML 的创作者决定跨域请求是否对本站点安全
+- `<script> <img> <iframe> <link> <video> <audio>` 带有 src 属性可以跨域访问
+  - 本质是浏览器发起http get 请求，去拿这些资源，加载到本地使用，这一步骤不受同源策略影响。但如果库里含有跨域请求，同样也受同源策略限制
+    ```html
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script> // 可以
+
+    <script src="./b.js"></script> // b中 axios.get('https://example.com/api/data') 不可以
+    ```
+- 允许跨域写操作：例如表单提交或者重定向请求
+- CSRF安全性问题
+  - 使用 referer 解决，有可能浏览器不支持
+  - 使用唯一 token 验证
+
+
+安全性：浏览器需要防止站点 A 的脚本向站点 B 发起危险动作
+- Cookie、LocalStorage 和 IndexDB 无法读取
+- DOM 无法获得（防止跨域脚本篡改 DOM 结构）
+- AJAX 请求不能发送
+
+### CORS
+CORS 是最为规范和安全的跨域方法。浏览器同源策略下的跨域访问解决方案：
+- 如果站点 A 允许站点 B 的脚本访问其资源，必须在 HTTP 响应中显式的告知浏览器：站点B是被允许的
+  - 访问站点 A 的请求，浏览器应告知该请求来自站点 B
+  - 站点 A 的响应中，应明确哪些跨域请求是被允许的
+
+**策略 1：何为简单请求？**
+- GET/HEAD/POST 方法之一
+- 仅能使用 CORS 安全的头部：Accept、Accept-Language、Content-Language、Content-Type
+- Content-Type 值只能是： text/plain、multipart/form-data、application/x-www-form-urlencoded三者其中之一
+
+简单请求的跨域访问：
+- 请求中携带 origin 告知是哪一个域
+- 响应中携带 Access-Control-Allow-Origin 头部表示允许哪些域
+- 浏览器放行（一般来讲，服务器都会做返回，浏览器来做对比放行）
+
+
+
+
+**策略 2：简单请求以外的其他请求**
+- 访问资源前，需要先发起 prefilght 预检请求（方法为 OPTIONS）询问何种请求是被允许的
+
+预检请求：
+- 预检请求头部
+  - Access-Control-Request-Method：告知请求方法
+  - Access-Control-Request-Headers：告知请求头
+- 预检请求响应
+  - Access-Control-Allow-Methods：告知允许哪些方法
+  - Access-Control-Allow-Headers：告知允许哪些头部
+  - Access-Control-Max-Age：告知预检请求的有效期  
+
+请求头部
+- Origin（RFC6454）：一个页面的资源可能来自于多个域名，在AJAX 等子请求中标明来源于某个域名下的脚本，以通过服务器的安全校验
+  - origin = "Origin:" OWS origin-list-or-null OWS
+  - origin-list-or-null = %x6E %x75 %x6C %x6C / origin-list
+  - origin-list = serialized-origin *( SP serialized-origin )
+  - serialized-origin = scheme "://" host [ ":" port ]
+- Access-Control-Request-Method
+  - 在 preflight 预检请求 (OPTIONS) 中，告知服务器接下来的请求会使用哪些方法
+- Access-Control-Request-Headers
+  - 在 preflight 预检请求 (OPTIONS) 中，告知服务器接下来的请求会传递哪些头部
+
+响应头部
+- Access-Control-Allow-Methods
+  - 在 preflight 预检请求的响应中，告知客户端后续请求允许使用的方法
+- Access-Control-Allow-Headers
+  - 在 preflight 预检请求的响应中，告知客户端后续请求允许携带的头部
+- Access-Control-Max-Age
+  - 在 preflight 预检请求的响应中，告知客户端该响应的信息可以缓存多久
+- Access-Control-Expose-Headers
+  - 告知浏览器哪些响应头部可以供客户端使用，默认情况下只有 Cache-Control、Content-Language、Content-Type、Expires、Last-Modified、Pragma 可供使用
+- Access-Control-Allow-Origin
+  - 告知浏览器允许哪些域访问当前资源，*表示允许所有域。为避免缓存错乱，响应中需要携带Vary: Origin
+- Access-Control-Allow-Credentials
+  - 告知浏览器是否可以将 Credentials 暴露给客户端使用，Credentials 包含 cookie、authorization 类头部、TLS证书等。
+
+
+
+## HTTP 响应码
+成功响应码以 1xx、2xx、3xx 开头，错误响应码以 4xx、5xx 开头。
+- 1xx：请求已接收到，需要进一步处理才能完成，HTTP1.0 不支持
+  - 100 Continue：上传大文件前使用
+    - 由客户端发起请求中携带 Expect: 100-continue 头部触发
+  - 101 Switch Protocols：协议升级使用
+    - 由客户端发起请求中携带 Upgrade: 头部触发，如升级 websocket 或者http/2.0
+- 2xx：成功处理请求
+  - 200 OK: 成功返回响应
+  - 201 Created: 成功创建资源(PUT请求)
+- 3xx：重定向使用 Location 指向的资源或者缓存中的资源。在RFC2068中规定客户端重定向次数不应超过 5 次，以防止死循环。
+  - 301 Moved Permanently：资源永久性的重定向到另一个URI 中
+  - 302 Found：资源临时的重定向到另一个 URI 中。
+  - 304 Not Modified：当客户端拥有可能过期的缓存时，会携带缓存的标识etag、时间等信息询问服务器缓存是否仍可复用，而304是告诉客户端可以复用缓存。
+
+- 4xx：客户端出现错误
+  - 400 Bad Request：服务器认为客户端出现了错误，但不能明确判断为以下哪种错误时使用此错误码。例如HTTP请求格式错误。
+  - 401 Unauthorized：用户认证信息缺失或者不正确，导致服务器无法处理请求。
+  - 403 Forbidden：服务器理解请求的含义，但没有权限执行此请求
+  - 404 Not Found：服务器没有找到对应的资源
+  - 405 Method Not Allowed：服务器不支持请求行中的 method 方法（例如 trace 方法）
+  - 413 Payload Too Large/Request Entity Too Large：请求的包体超出服务器能处理的最大长度（WordPress对文件的要求是2m）
+- 5xx：服务器错误
+  - 500 Internal Server Error：服务器内部错误，且不属于以下错误类型
+  - 501 Not Implemented：服务器不支持实现请求所需要的功能
+  - 502 Bad Gateway：代理服务器无法获取到合法响应
+
+## HTTP 缓存
+客户端和服务器端，都会对资源进行缓存。HTTP 缓存能有效减少时延，并且减少带宽消耗。
+curl 一个会被缓存的资源如下：
+```bash
+curl 'https://static.nowcoder.com/fe/file/logo/1.png' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: https://www.nowcoder.com/' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"' \
+  -H 'sec-ch-ua-mobile: ?0' -I 
+```
+返回结果为 200:
+```bash
+HTTP/2 200 
+server: Tengine
+content-type: image/png
+content-length: 2360
+date: Mon, 16 Dec 2024 09:52:50 GMT
+x-oss-request-id: 675FF8727CC18139363CEF49
+x-oss-cdn-auth: success
+accept-ranges: bytes
+x-oss-object-type: Normal
+x-oss-storage-class: Standard
+cache-control: max-age=315360000
+x-oss-version-id: CAEQchiBgMCnivHzsxgiIDE4ZWQ4ZTVlZTg4ODQ2NDliYjg3MDFlMzA5NWI3YzU3
+content-md5: g6d3yOcYpcNYBbsnYGGD/Q==
+x-oss-server-time: 25
+via: cache6.l2cn7492[0,0,304-0,H], cache35.l2cn7492[0,0], kunlun12.cn8001[0,0,200-0,H], kunlun12.cn8001[2,0]
+vary: Origin
+etag: "83A777C8E718A5C35805BB27606183FD"
+last-modified: Thu, 23 Feb 2023 06:31:48 GMT
+x-oss-hash-crc64ecma: 7835832694211504772
+age: 99447
+ali-swift-global-savetime: 1734342770
+x-cache: HIT TCP_MEM_HIT dirn:-2:-2
+x-swift-savetime: Mon, 16 Dec 2024 09:52:50 GMT
+x-swift-cachetime: 691200
+access-control-allow-origin: *
+access-control-allow-credentials: true
+timing-allow-origin: *
+eagleid: dcb5a62017344422171651522e
+```
+为请求添加
+```bash
+curl 'https://static.nowcoder.com/fe/file/logo/1.png' \
+  -H 'sec-ch-ua-platform: "macOS"' \
+  -H 'Referer: https://www.nowcoder.com/' \
+  -H 'User-Agent: Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36' \
+  -H 'sec-ch-ua: "Google Chrome";v="131", "Chromium";v="131", "Not_A Brand";v="24"' \
+  -H 'sec-ch-ua-mobile: ?0' -H 'if-none-match: "83A777C8E718A5C35805BB27606183FD"' -I
+```
+ 后，返回结果为 304。响应结果中 content-length 为 0，节省了大量带宽。
+ ```bash
+ HTTP/2 304 
+server: Tengine
+date: Mon, 16 Dec 2024 09:52:50 GMT
+x-oss-request-id: 675FF8727CC18139363CEF49
+x-oss-cdn-auth: success
+accept-ranges: bytes
+x-oss-object-type: Normal
+x-oss-storage-class: Standard
+cache-control: max-age=315360000
+x-oss-version-id: CAEQchiBgMCnivHzsxgiIDE4ZWQ4ZTVlZTg4ODQ2NDliYjg3MDFlMzA5NWI3YzU3
+content-md5: g6d3yOcYpcNYBbsnYGGD/Q==
+x-oss-server-time: 25
+via: cache6.l2cn7492[0,0,304-0,H], cache35.l2cn7492[0,0], kunlun12.cn8001[0,0,304-0,H], kunlun13.cn8001[2,0]
+vary: Origin
+etag: "83A777C8E718A5C35805BB27606183FD"
+last-modified: Thu, 23 Feb 2023 06:31:48 GMT
+x-oss-hash-crc64ecma: 7835832694211504772
+age: 100896
+ali-swift-global-savetime: 1734342770
+x-cache: HIT TCP_IMS_HIT dirn:-2:-2
+x-swift-savetime: Mon, 16 Dec 2024 09:52:50 GMT
+x-swift-cachetime: 691200
+access-control-allow-origin: *
+access-control-allow-credentials: true
+timing-allow-origin: *
+eagleid: dcb5a62117344436667782245e
+ ```
+ 这个缓存机制如下：
+ - If-None-Match 头部用于缓存验证。它包含了之前请求资源的 ETag 值（在上述例子是 "83A777C8E718A5C35805BB27606183FD"）。服务器使用这个值来判断客户端是否有最新的资源。
+ - 当服务器接收到带有 If-None-Match 的请求时，它会检查当前资源的 ETag。如果资源没有被修改，它会返回 304 Not Modified，告知客户端可以使用缓存中的版本，而无需重新传输资源。
+
+ ### 私有缓存和共享缓存
+ - 私有缓存：仅供一个用户使用的缓存，通常只存在于如浏览器这样的客户端上
+ - 共享缓存：可以供多个用户的缓存，存在于网络中负责转发消息的代理服务器（对热点资源常使用共享缓存，以减轻源服务器的压力，并提升网络效率）
+   - Authentication 响应不可被代理服务器缓存
+   - 正向代理
+   - 反向代理
+
+如何判断请求一个数据时，是代理服务器返回的，还是源服务器返回的呢？当返回响应头中包含 age 时，表示是代理服务器返回，存在时间为 age 秒。判断代理服务器响应是否过期的过程如下图：
+![age](https://s2.loli.net/2024/12/17/NefQ9bGXwRCVzHd.png)
+
+缓存实现原理如下图：
+![缓存实现原理](https://s2.loli.net/2024/12/17/pDO2c59budjJKCZ.png)
+
+### 判断缓存是否过期
+- response_is_fresh = (freshness_lifetime > current_age)
+  - freshness_lifetime：按优先级，取以下响应头部的值
+    - s-maxage > max-age > Expires > 预估过期时间
+    - 例如：
+      - Cache-Control: s-maxage=3600
+      - Cache-Control: max-age=86400
+      - Expires: Fri, 03 May 2019 03:15:20 GMT
+        - Expires = HTTP-date，指明缓存的绝对过期时间
+
+在 nginx 中配置如下，如果存在 s-maxage，则不会考虑 max-age。
+![nginx](https://s2.loli.net/2024/12/17/Z3bfVHivK68FX1M.png)
+
+当服务器没有显式指定 max-age 过期时间时候，我们也需要预计过期时间，RFC7234 推荐：（DownloadTime– LastModified)*10%。
+
+age 表示表示自源服务器发出响应（或者验证过期缓存），到使用缓存的响应发出时经过的秒数
+- 对于代理服务器管理的共享缓存，客户端可以根据 Age 头部判断缓存时间
+- Age = delta-seconds
+
+current_age 计算：current_age = corrected_initial_age + resident_time;
+-  resident_time = now - response_time(接收到响应的时间);
+-  corrected_initial_age = max(apparent_age, corrected_age_value); 
+  - corrected_age_value = age_value + response_delay; 
+    - response_delay = response_time - request_time(发起请求的时间); 
+  - apparent_age = max(0, response_time - date_value);
+
+经过层层代理的响应的 age 计算方式如下：
+![age计算](https://s2.loli.net/2024/12/17/13KmdhkXFATcDOo.png)
+
+### cache-control 在请求和响应中的不同取值
+下图中，红色表示后面需要跟 = 值，黑色表示该字段可以直接使用，蓝色表示既可以赋具体的值，又可以直接使用。
+![cache-control](https://s2.loli.net/2024/12/17/iPJsOuEjvZ9IebU.png)
+
+- cache-control 在请求中的值
+  - max-age：告诉服务器，客户端不会接受 Age 超出 max-age 秒的缓存
+  - max-stale：告诉服务器，即使缓存不再新鲜，但陈旧秒数没有超出 max-stale 时，客户端仍打算使用。若 max-stale 后没有值，则表示无论过期多久客户端都可使用
+  - min-fresh：告诉服务器，Age 至少经过 min-fresh 秒后缓存才可使用
+  - no-cache：告诉服务器，不能直接使用已有缓存作为响应返回，除非带着缓存条件到上游服务端得到 304 验证返回码才可使用现有缓存
+  - no-store：告诉各代理服务器不要对该请求的响应缓存（实际有不少不遵守该规定的代理服务器）
+  - no-transform：告诉代理服务器不要修改消息包体的内容
+  - only-if-cached：告诉服务器仅能返回缓存的响应，否则若没有缓存则返回504 错误码
+- cache-control 在响应中的值
+  - must-revalidate：告诉客户端一旦缓存过期，必须向服务器验证后才可使用
+  - proxy-revalidate：与 must-revalidate 类似，但它仅对代理服务器的共享缓存有效
+  - no-cache：告诉客户端不能直接使用缓存的响应，使用前必须在源服务器验证得到 304 返回码。如果 no-cache 后指定头部，则若客户端的后续请求及响应中不含有这些头则可直接使用缓存
+  - max-age：告诉客户端缓存 Age 超出 max-age 秒后则缓存过期
+  - s-maxage：与 max-age 相似，但仅针对共享缓存，且优先级高于max-age和Expires
+  - public：表示无论私有缓存或者共享缓存，皆可将该响应缓存
+  - private：表示该响应不能被代理服务器作为共享缓存使用。若private 后指定头部，则在告诉代理服务器不能缓存指定的头部，但可缓存其他部分
+  - no-store：告诉所有下游节点不能对响应进行缓存
+  - no-transform：告诉代理服务器不能修改消息包体的内容
+
+
+### 什么样的响应会被缓存
+**什么样的响应会被缓存？**
+- 请求方法可以被缓存理解（不只于 GET 方法）
+- 响应码可以被缓存理解（404、206 也可以被缓存）
+- 响应与请求的头部没有指明 no-store
+- 响应中至少应含有以下头部中的 1 个或者多个：
+  - Expires、max-age、s-maxage、public
+- 当响应中没有明确指示过期时间的头部时，如果响应码非常明确，也可以缓存
+- 如果缓存在代理服务器上
+  - 不含有 private
+  - 不含有 Authorization
+
+**使用缓存作为响应时，需要满足以下条件：**
+- URI 是匹配的
+  - URI 作为主要的缓存关键字，当一个 URI 同时对应多份缓存时，选择日期最近的缓存
+  - 例如 Nginx 中默认的缓存关键字：proxy_cache_key
+  - $scheme$proxy_host$request_uri;
+- 缓存中的响应允许当前请求的方法使用缓存
+- 缓存中的响应 Vary 头部指定的头部必须与请求中的头部相匹配：
+  - Vary = “*” / 1#field-name
+    - Vary: *意味着一定匹配失败
+- 当前请求以及缓存中的响应都不包含 no-cache 头部（Pragma: no-cache 或者Cache-Control: no-cache）
+- 缓存中的响应必须是以下三者之一：
+  - 新鲜的（时间上未过期）
+  - 缓存中的响应头部明确告知可以使用过期的响应（如 Cache-Control: max-stale=60）
+  - 使用条件请求去服务器端验证请求是否过期，得到 304 响应
+
+下面是一个典型的使用 vary 的例子。缓存中使用 gzip 压缩格式，那么，即使所有关键字都一致，也无法使用缓存。
+![Vary](https://s2.loli.net/2024/12/17/D8Y9drnfSZVxka7.png)
 
 
 
